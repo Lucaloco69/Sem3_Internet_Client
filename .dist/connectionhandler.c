@@ -9,7 +9,7 @@
 // Definition der globalen Variable server_addr
 struct sockaddr_in server_addr;  // Hier definierst du die Variable
 
-void createSocket(char *port, char *ipAddrServer) {
+int createSocket(char *port, char *ipAddrServer) {
     int sock = socket(AF_INET, SOCK_STREAM, 0); // Socket erstellen
     if (sock == -1) {
         perror("Socket konnte nicht erstellt werden");
@@ -26,4 +26,5 @@ void createSocket(char *port, char *ipAddrServer) {
         exit(EXIT_FAILURE);
     }
     printf("Verbindung zum Server wurde erfolgreich hergestellt\n");
+    return sock;
 }
