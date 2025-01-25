@@ -2,21 +2,17 @@
 #include "network.h"
 #include <unistd.h>
 #include <stdlib.h>
-#include "util.h"
 #include <arpa/inet.h>
 #include <string.h>
-#include "Cookie.h"
+#include <stdio.h>
 
-//Return-value 1 : Recieving Message was ok
-//Return-value 0: Client closed Connection
-//Return-value -1: Error while reading Message
 
 int clientReceive(int fd, char *buffer)
-{
-	//TODO: Receive length
+{   printf("Hier in receive");
 	ssize_t bytes_read;
 
 	bytes_read = read(fd, buffer, MSG_MAX);
+    printf("%s",buffer);
 
 	if(bytes_read > 0) {
 		return 1;
@@ -30,10 +26,20 @@ int clientReceive(int fd, char *buffer)
 }
 
 
-int clientSend(int fd, const char *buffer)
-{
+int clientSend(int fd, char *buffer) {
+    printf("ClientSend");
+    ssize_t bytes_sent = send(fd, buffer, strlen(buffer), 0);
+    
+    if (bytes_sent == -1) {
+        perror("Fehler beim Senden");
+        return -1;
+    }
+    
+    if ((size_t)bytes_sent != strlen(buffer)) {
+        fprintf(stderr, "Nicht alle Daten wurden gesendet. Nur %zd von %zu Bytes gesendet.\n", bytes_sent, strlen(buffer));
+        return -1;
+    }
 
-
-	return 0;
-
+    return 0;
 }
+

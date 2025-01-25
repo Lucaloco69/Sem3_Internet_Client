@@ -1,8 +1,6 @@
 #ifndef CHAT_PROTOCOL_H
 #define CHAT_PROTOCOL_H
 
-#include "Cookie.h"
-
 /* TODO: When implementing the fully-featured network protocol (including
  * login), replace this with message structures derived from the network
  * protocol (RFC) as found in the moodle course. */
@@ -44,7 +42,7 @@ typedef struct __attribute__((packed))
 
 
 int clientReceive(int fd, char *buffer);
-int clientSend(int fd, const char *buffer);
+int clientSend(int fd, char *buffer);
 
 
 #endif
