@@ -7,35 +7,45 @@
 #include "network.h"
 #define MSG_MAX 2097152
 #include "message.h"
-bool cookie=true;
 bool firstTime=true;
 
 int main(int argc, char **argv) {
     while(1){
     char *httpReq = (char *)malloc(MSG_MAX * sizeof(char));
      if (httpReq == NULL) {
-        perror("Malloc für input fehlgeschlagen");
-        free(httpReq);
+        perror("Malloc für httpReq fehlgeschlagen");
         exit(EXIT_FAILURE);
     }
 
     char *input = (char *)malloc(MSG_MAX * sizeof(char));
      if (input == NULL) {
         perror("Malloc für input fehlgeschlagen");
-        free(input);
+        free(httpReq);
         exit(EXIT_FAILURE);
     }
   
     char *name = (char *)malloc(MSG_MAX * sizeof(char));
     if (name == NULL) {
         perror("Malloc für name fehlgeschlagen");
-        free(name);
+        free(httpReq);
+        free(input);
         exit(EXIT_FAILURE);
     }
 
     char *content = (char *)malloc(MSG_MAX * sizeof(char));
     if (content == NULL) {
-        perror("Malloc für file fehlgeschlagen");
+        perror("Malloc für content fehlgeschlagen");
+        free(httpReq);
+        free(input);
+        free(name);
+        exit(EXIT_FAILURE);
+    }
+    responseBuffer=(Message*)malloc(sizeof(Message));
+     if (responseBuffer == NULL) {
+        perror("Malloc für responseBuffer fehlgeschlagen");
+        free(httpReq);
+        free(input);
+        free(name);
         free(content);
         exit(EXIT_FAILURE);
     }
@@ -45,15 +55,21 @@ int main(int argc, char **argv) {
     if (argc > 3) {
         printf("Zu viele Argumente\n");
         free(input); 
-        free(name);   
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content);  
         return 1;
     }
 
     int fd = createSocket(argv[2], argv[1]);
     if (fd < 0) {
         perror("Fehler beim Erstellen des Sockets");
-        free(input);
-        free(name);  
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content);   
         return 1;
     }
     if(firstTime==false){
@@ -61,10 +77,12 @@ int main(int argc, char **argv) {
         printf("Noch eine Request schicken? Y | n\n");
         fgets(again, MSG_MAX, stdin);
         if(again[0]=='n'){
-            free(input);
-    free(name);  
-    free(httpReq);
-    close(fd);
+            free(input); 
+            free(name); 
+            free(httpReq);
+            free(responseBuffer);
+            free(content); 
+            close(fd);
             break;
         }
     }
@@ -80,46 +98,78 @@ int main(int argc, char **argv) {
     int store = evaluateInput(input);
     if (store == -1) {
         perror("Falsche Eingabe");
-        free(input);
-        free(name);
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
         close(fd);
         exit(EXIT_FAILURE);
     }
     if (store == 1) {
         printf("Geben Sie den Benutzernamen an:");
         fgets(name, MSG_MAX, stdin);  
-        cookie=true;
     }
-    if(cookie==false){
-    httpReq = prepareRequest(input, argv[1], name);
+    printf("moin");
+    if(responseBuffer->Cookie[0]!='\0'){
+    httpReq = prepareRequestWithCookie(input, argv[1], name,responseBuffer->Cookie);
     printf("Noch da1?");
     if (httpReq == NULL) {
         perror("Fehler beim Vorbereiten der Anfrage");
-        free(input);
-        free(name);
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
         close(fd);
         exit(EXIT_FAILURE);
     }
     }else{
+        printf("FATAL");
          httpReq = prepareRequest(input, argv[1], name);
     printf("Noch da1?");
     if (httpReq == NULL) {
         perror("Fehler beim Vorbereiten der Anfrage");
-        free(input);
-        free(name);
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
         close(fd);
         exit(EXIT_FAILURE);
     }
 
     }
     
+    if(clientSend(fd, httpReq)!=0){
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
+        exit(EXIT_FAILURE);
 
-    clientSend(fd, httpReq);
-    printf("Noch da2?");
-    clientReceive(fd,content);
-    printf("Noch da3?");
+    }
+
+    if(clientReceive(fd,content)!=1){
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
+        exit(EXIT_FAILURE);
+
+    }
+    
     content = divideBodyFromHeader(content);
-    writeIntoFile(content);
+    if(writeIntoFile(content)!=0){
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
+        exit(EXIT_FAILURE);
+    }
 
    
     firstTime=false;

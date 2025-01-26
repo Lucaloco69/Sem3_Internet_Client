@@ -114,10 +114,27 @@ char *divideBodyFromHeader(char *str)
 } 
 
 int writeIntoFile(char *body){
-    FILE *file = fopen("requestedData.txt", "w");
+    FILE *file;
+    printf("hi");
+    printf("%s",responseBuffer->contentType);
+    if(strcmp(responseBuffer->contentType," text/html")==0 || strcmp(responseBuffer->contentType," text/plain")==0){
+        file = fopen("requestedData.txt", "w");
+    }
+
+    if(strcmp(responseBuffer->contentType," application/pdf")==0){
+         file = fopen("requestedData.pdf", "w");
+    
+    }
+
+    if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=--------------------------104850386028541947603269")==0){
+        
+    }
+
+
+    printf("\nIn writeIntoFile:\n %s\n",body);
 
     if (file == NULL) {
-        perror("Fehler beim Öffnen der Datei");
+        printf("Fehler beim Öffnen der Datei");
         return 1;
     }
     ssize_t outcome=fwrite(body, sizeof(char), strlen(body), file);
@@ -129,6 +146,8 @@ int writeIntoFile(char *body){
     }
 
     printf("\nEine Datei mit den angeforderten Daten wurde erfolgreich erstellt\n");
+    fclose(file);
+    return 0;
 
 }
 
@@ -176,6 +195,67 @@ char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* 
         free(msg);
     
     return NULL;
+
+}
+
+int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
+{
+    printf("In getHeadersFromRequest\n");
+    char httpStr[MSG_MAX];
+
+    strcpy(httpStr, strBuf); 
+
+    char *headerlines[maxHeaders];
+
+    //strcpy(httpStr, strBuf); 
+    char *firstLine = strtok(httpStr, "\r\n");
+
+    for(int i = 0; i < maxHeaders; i++)
+    {
+        printf(" First for  %d\n",i);
+        
+        char *headerLine = strtok(NULL, "\r\n");
+
+        headerlines[i] = headerLine;
+        printf("\nheaderline: %s\n",headerlines[i]);
+    }
+
+    for(int i = 0; i < maxHeaders; i++)
+    {
+        //infoPrint("Die %d. Zeile: %s", i, headerlines[i] );
+
+        char *key = strtok(headerlines[i], ":");
+
+        if(key == NULL)
+        {
+            break;
+        } 
+
+        char *value = strtok(NULL, "\r\n");
+        printf("\nKey: %s Value: %s\n",key,value);
+
+        if(strcmp(key, "Content-Length") == true)
+        {
+            buffer->contentLength = atoi(value);
+        } 
+
+        else if(strcmp(key, "Content-Type") == true)
+        {
+            strncpy(buffer->contentType, value, 511);
+            buffer->contentType[511] = 0; 
+            printf("\nIn Alessio: %s\n",buffer->contentType);
+        } 
+
+        else if(strcmp(key, "Cookie") == true)
+        {
+            char *val = strtok(value, "=");
+
+            val = strtok(NULL, ";");
+
+            strncpy(buffer->Cookie,val,strlen(val));//Da val ein char pointer und Cookie ein char []
+            buffer->Cookie[sizeof(buffer->Cookie) - 1] = '\0';
+        }  
+    }
 
 } 
 

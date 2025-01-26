@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdio.h>
+#include "message.h"
+Message *responseBuffer;
 
 
 int clientReceive(int fd, char *buffer)
@@ -15,12 +17,15 @@ int clientReceive(int fd, char *buffer)
     printf("%s",buffer);
 
 	if(bytes_read > 0) {
+        getHeadersFromRequest(responseBuffer,buffer,10);
 		return 1;
 	}
 	else if (bytes_read == 0) {
+        printf("Fehler beim empfangen der Daten");
 		return 0;
 
 	}
+     printf("Fehler beim empfangen der Daten");
 
 	return -1;
 }
