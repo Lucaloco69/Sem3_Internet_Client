@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
         free(name);
         exit(EXIT_FAILURE);
     }
-    responseBuffer=(Message*)malloc(sizeof(Message));
+    Message  *responseBuffer = (Message*)malloc(sizeof(Message));
      if (responseBuffer == NULL) {
         perror("Malloc für responseBuffer fehlgeschlagen");
         free(httpReq);
@@ -151,7 +151,8 @@ int main(int argc, char **argv) {
 
     }
 
-    if(clientReceive(fd,content)!=1){
+    char *rcvResult = clientReceive(fd,content, responseBuffer);
+    if(rcvResult == NULL){
         free(input); 
         free(name); 
         free(httpReq);
@@ -161,8 +162,8 @@ int main(int argc, char **argv) {
 
     }
     
-    content = divideBodyFromHeader(content);
-    if(writeIntoFile(content)!=0){
+    // content = divideBodyFromHeader(content);
+    if(writeIntoFile(rcvResult, responseBuffer)!=0){
         free(input); 
         free(name); 
         free(httpReq);

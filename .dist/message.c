@@ -113,8 +113,9 @@ char *divideBodyFromHeader(char *str)
 
 } 
 
-int writeIntoFile(char *body){
+int writeIntoFile(char *body, Message *responseBuffer){
     FILE *file;
+    file = NULL;
     printf("hi");
     printf("%s",responseBuffer->contentType);
     if(strcmp(responseBuffer->contentType," text/html")==0 || strcmp(responseBuffer->contentType," text/plain")==0){
@@ -137,6 +138,7 @@ int writeIntoFile(char *body){
         printf("Fehler beim Öffnen der Datei");
         return 1;
     }
+    printf("Länge des Body %ld", strlen(body));
     ssize_t outcome=fwrite(body, sizeof(char), strlen(body), file);
       
     if (outcome != strlen(body)) {
@@ -232,21 +234,22 @@ int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
         } 
 
         char *value = strtok(NULL, "\r\n");
-        printf("\nKey: %s Value: %s\n",key,value);
+        printf("\nKey: %s",key);
 
-        if(strcmp(key, "Content-Length") == true)
+        if(strcmp(key, "Content-Length") == 0)
         {
+
             buffer->contentLength = atoi(value);
         } 
 
-        else if(strcmp(key, "Content-Type") == true)
+        else if(strcmp(key, "Content-Type") == 0)
         {
             strncpy(buffer->contentType, value, 511);
-            buffer->contentType[511] = 0; 
+            buffer->contentType[strlen(value)] = 0; 
             printf("\nIn Alessio: %s\n",buffer->contentType);
         } 
 
-        else if(strcmp(key, "Cookie") == true)
+        else if(strcmp(key, "Set-Cookie") == 0)
         {
             char *val = strtok(value, "=");
 

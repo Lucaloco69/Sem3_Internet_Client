@@ -19,8 +19,7 @@ typedef struct __attribute__((packed))
 }Message;
 
 
-int clientReceive(int fd, char *buffer);
+char *clientReceive(int fd, char *buffer, Message *responseBuffer);
 int clientSend(int fd, char *buffer);
-extern Message *responseBuffer;
 
 #endif

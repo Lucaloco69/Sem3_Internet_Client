@@ -6,10 +6,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "message.h"
-Message *responseBuffer;
 
-
-int clientReceive(int fd, char *buffer)
+//Return Pointer to Body of Response or NULL
+char *clientReceive(int fd, char *buffer, Message *responseBuffer)
 {   printf("Hier in receive");
 	ssize_t bytes_read;
 
@@ -17,17 +16,21 @@ int clientReceive(int fd, char *buffer)
     printf("%s",buffer);
 
 	if(bytes_read > 0) {
+        printf("RAW RESPONSE: %s", buffer);
+        //TEST
+        char *body = divideBodyFromHeader(buffer);
+
         getHeadersFromRequest(responseBuffer,buffer,10);
-		return 1;
+		return body;
 	}
 	else if (bytes_read == 0) {
         printf("Fehler beim empfangen der Daten");
-		return 0;
+		return NULL;
 
 	}
      printf("Fehler beim empfangen der Daten");
 
-	return -1;
+	return NULL;
 }
 
 
