@@ -11,7 +11,8 @@
 
 char *divideBodyFromHeader(char *str);
 
-
+//Hier werden die Request Strings befüllt mit den einzelnen Headern, wenn ein Cookie noch nicht existiert
+//Wichtig ist hier das \r\n nach jedem Header und das \r\n\r\n um den beginn des Bodys zu kennzeichnen
 char * prepareRequest(char *input,char *hostName,char* userName){
      char *msg = (char *)malloc(MSG_MAX * sizeof(char));
      if (msg == NULL) {
@@ -28,7 +29,6 @@ char * prepareRequest(char *input,char *hostName,char* userName){
         if(strncmp(input+4,"/mixed",6)==0){
             snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\n",(char*)hostName);
             printf("%s",msg);
-            printf("Hallo");
             return msg;
         }
 
@@ -48,9 +48,7 @@ char * prepareRequest(char *input,char *hostName,char* userName){
 
         if(strncmp(input+5,"/myname",7)==0 && hostName[0]!='\0'){ //POST-Request
         snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\nusername=%s",strlen(userName),(char*)hostName,(char*)userName);
-            printf("Hier funzt noch alles");
             printf("%s",msg);
-            printf("Hallo?");
             return msg;
 
         }
@@ -59,7 +57,7 @@ char * prepareRequest(char *input,char *hostName,char* userName){
     return NULL;
 
 } 
-
+//Hier werden die eingegebenen Daten validiert 
 int evaluateInput(char *input){
    
     if(strncmp(input,"GET",(long unsigned int)3) == 0 && strncmp(input+3," ",(long unsigned int)1) == 0){
@@ -94,14 +92,14 @@ int evaluateInput(char *input){
     return -1;
 }
 
-
+//Hier wird der Body vom Header getrennt
 char *divideBodyFromHeader(char *str)
 {
     
     for(int i = 0; i < strlen(str); i++)
     {
 
-        if(*(str + i) == 13 && *(str + i + 1) == 10 && *(str + i + 2) == 13 && *(str + i + 3) == 10)
+        if(*(str + i) == 13 && *(str + i + 1) == 10 && *(str + i + 2) == 13 && *(str + i + 3) == 10) //13=r 10=n ASCII
         {
             *(str + i + 2) = 0;
 
@@ -112,6 +110,7 @@ char *divideBodyFromHeader(char *str)
     return NULL;
 
 } 
+//Hier werden die angeforderten Daten in jeweilige Dateien geschrieben
 int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
     FILE *file;
     printf("%s",responseBuffer->contentType);
@@ -172,7 +171,8 @@ int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
 
 
 
-
+//Hier werden die Request Strings befüllt mit den einzelnen Headern, wenn ein Cookie bereits existiert
+//Wichtig ist hier das \r\n nach jedem Header und das \r\n\r\n um den beginn des Bodys zu kennzeichnen
 char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* cookie){
      char *msg = (char *)malloc(MSG_MAX * sizeof(char));
      if (msg == NULL) {
@@ -210,9 +210,9 @@ char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* 
 
         printf("\n DER COOKIE HAT DEN WERT: %s", cookie);
         snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\nusername=%s",strlen(userName) + 9,hostName,(char *)cookie, (char *)userName);
-            printf("Hier funzt noch alles");
+            
             printf("%s",msg);
-            printf("Hallo?");
+            
             return msg;
 
         }
@@ -222,31 +222,28 @@ char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* 
 
 }
 
+//Hier werden die Header des HTTP-Response in einzelne Variablen gespeichert um mit ihnen arbeiten zu können
 int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
 {
-    printf("In getHeadersFromRequest\n");
     char httpStr[MSG_MAX];
 
     strcpy(httpStr, strBuf); 
 
     char *headerlines[maxHeaders];
 
-    //strcpy(httpStr, strBuf); 
     char *firstLine = strtok(httpStr, "\r\n");
 
-    for(int i = 0; i < maxHeaders; i++)
+    for(int i = 0; i < maxHeaders; i++)//HIer werden alle Headerlines, wie z.b 
+                                        //Content-Length,Content-Type,gespeichert
     {
-        printf(" First for  %d\n",i);
         
         char *headerLine = strtok(NULL, "\r\n");
 
         headerlines[i] = headerLine;
-        printf("\nheaderline: %s\n",headerlines[i]);
     }
 
-    for(int i = 0; i < maxHeaders; i++)
+    for(int i = 0; i < maxHeaders; i++)//Hier werden alle Keys gespeichert (die werte nach den HeaderLines)
     {
-        //infoPrint("Die %d. Zeile: %s", i, headerlines[i] );
 
         char *key = strtok(headerlines[i], ":");
 
@@ -256,50 +253,46 @@ int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
         } 
 
         char *value = strtok(NULL, "\r\n");
-        printf("\nKey: %s",key);
 
         if(strcmp(key, "Content-Length") == 0)
         {
 
-            buffer->contentLength = atoi(value);
+            buffer->contentLength = atoi(value);//String in int
         } 
 
         else if(strcmp(key, "Content-Type") == 0)
         {
             strncpy(buffer->contentType, value, 511);
             buffer->contentType[strlen(value)] = 0; 
-            printf("\nIn Alessio: %s\n",buffer->contentType);
         } 
 
         else if(strcmp(key, "Set-Cookie") == 0)
         {
-            printf("COOKIE GEFUNDEN");
             char *val = strtok(value, "=");
 
             val = strtok(NULL, ";");
 
 
-            printf("WERT VON COOKIE: %s\n ", val);
 
-            strncpy(buffer->Cookie,val,strlen(val));//Da val ein char pointer und Cookie ein char []
+            strncpy(buffer->Cookie,val,strlen(val));
             buffer->Cookie[strlen(val)] = '\0';
-            printf("\n WERT %s \n  ", buffer->Cookie);
         }  
     }
 
 } 
 
+//Die Text-Datei muss von der Bild-Datei getrennt werden, diese sind durch die boundary separiert. Hier werden diese einzelnd in die Variablen txt und img gespeichert.
+//aufbau: boundary Text boundary Img boundary
 int splitIntoImgAndText(char* mixed,char *img, char* txt){
     char *splitter=" multipart/form-data; boundary=--------------------------104850386028541947603269";
 
-    char *store=strstr(mixed+strlen(splitter),splitter);
-    *store='\0';
+    char *store=strstr(mixed+strlen(splitter),splitter);//Erste boundary wird übersprungen
+    *store='\0'; //Null-Terminiert um inhalt bis zur 2. boundary in Text zu speichern
     txt=mixed-strlen(splitter);
-    store=store +1;
+    store=store +1;//Sonst Null-Terminierung
     store=strstr(store+strlen(splitter),splitter);
-    *store='\0';
+    *store='\0';//Null-Termniert um inhalt bis zur 3. boundary in Img zu speichern
     img=txt+strlen(splitter);
-    printf("In splitIntoImgAndText text: %s \n und img: %s",txt,img);
     
 }
 
