@@ -21,6 +21,7 @@ char *clientReceive(int fd, char *buffer, Message *responseBuffer)
         char *body = divideBodyFromHeader(buffer);
 
         getHeadersFromRequest(responseBuffer,buffer,10);
+        printf("AAAAAAAAAAH");
 		return body;
 	}
 	else if (bytes_read == 0) {

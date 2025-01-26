@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
     }
 
     char *rcvResult = clientReceive(fd,content, responseBuffer);
+    printf("HALLO");
     if(rcvResult == NULL){
         free(input); 
         free(name); 
@@ -164,11 +165,15 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
 
     }
+    printf("\nNach recv\n");
     char* image;
     char* text;
-    if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=-------------------------104850386028541947603269")==0){
+    if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=--------------------------104850386028541947603269")==0){
+        printf("\nBRUDER SIND DRIN");
         splitIntoImgAndText(rcvResult,image,text);
     }
+    printf("\n DAS IMAGE: %s\n",image);
+    printf("\n DER TEXT: %s\n",text);
     
     // content = divideBodyFromHeader(content);
     if(writeIntoFile(rcvResult, responseBuffer,image,text)!=0){

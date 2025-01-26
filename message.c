@@ -290,7 +290,7 @@ int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
 } 
 
 int splitIntoImgAndText(char* mixed,char *img, char* txt){
-    char *splitter=" -------------------------104850386028541947603269";
+    char *splitter=" multipart/form-data; boundary=--------------------------104850386028541947603269";
 
     char *store=strstr(mixed+strlen(splitter),splitter);
     *store='\0';
