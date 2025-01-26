@@ -11,6 +11,7 @@ bool cookie=true;
 bool firstTime=true;
 
 int main(int argc, char **argv) {
+    while(1){
     char *httpReq = (char *)malloc(MSG_MAX * sizeof(char));
      if (httpReq == NULL) {
         perror("Malloc für input fehlgeschlagen");
@@ -48,7 +49,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    while(1){
     int fd = createSocket(argv[2], argv[1]);
     if (fd < 0) {
         perror("Fehler beim Erstellen des Sockets");

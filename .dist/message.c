@@ -20,33 +20,34 @@ char * prepareRequest(char *input,char *hostName,char* userName){
      }
 
         if(strncmp(input+4,"/myname",7)==0){ //GET-Requests
-            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\n",(char*)hostName);
             printf("%s",msg);
             return msg;
         }
 
         if(strncmp(input+4,"/mixed",6)==0){
-            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\n",(char*)hostName);
             printf("%s",msg);
+            printf("Hallo");
             return msg;
         }
 
         if(strncmp(input+4,"/pdf",4)==0){
-            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\n",(char*)hostName);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+4,"/website",8)==0){
-            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\n",(char*)hostName);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+5,"/myname",7)==0 && hostName[0]!='\0'){ //POST-Request
-        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=unknown\r\n\r\nusername:%s",strlen(userName),(char*)hostName,(char*)userName);
+        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\nusername:%s",strlen(userName),(char*)hostName,(char*)userName);
             printf("Hier funzt noch alles");
             printf("%s",msg);
             printf("Hallo?");
@@ -131,41 +132,41 @@ int writeIntoFile(char *body){
 
 }
 
-char * prepareRequestWithCookie(char *input,char *hostName,char* userName){
+char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* cookie){
      char *msg = (char *)malloc(MSG_MAX * sizeof(char));
      if (msg == NULL) {
         perror("Fehler bei der Speicherzuweisung für msg");
         return NULL;
      }
 
-        if(strncmp(input+4,"/myname",7)==0){ //GET-Requests
-            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+        if(strncmp(input+4,"/myname",7)==0){ 
+            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCooke: %s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
         }
 
         if(strncmp(input+4,"/mixed",6)==0){
-            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
         }
 
         if(strncmp(input+4,"/pdf",4)==0){
-            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+4,"/website",8)==0){
-            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=guest\r\n\r\n",(char*)hostName);
+            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+5,"/myname",7)==0 && hostName[0]!='\0'){ //POST-Request
-        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: username=unknown\r\n\r\nusername:%s",strlen(userName),(char*)hostName,(char*)userName);
+        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\nusername:%s",strlen(userName),hostName,userName,(char*)cookie);
             printf("Hier funzt noch alles");
             printf("%s",msg);
             printf("Hallo?");
