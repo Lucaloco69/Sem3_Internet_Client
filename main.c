@@ -10,6 +10,16 @@
 bool firstTime=true;
 
 int main(int argc, char **argv) {
+    Message  *responseBuffer = (Message*)malloc(sizeof(Message));
+     if (responseBuffer == NULL) {
+        perror("Malloc für responseBuffer fehlgeschlagen");
+        // free(httpReq);
+        // free(input);
+        // free(name);
+        // free(content);
+        exit(EXIT_FAILURE);
+    }
+
     while(1){
     char *httpReq = (char *)malloc(MSG_MAX * sizeof(char));
      if (httpReq == NULL) {
@@ -40,15 +50,7 @@ int main(int argc, char **argv) {
         free(name);
         exit(EXIT_FAILURE);
     }
-    Message  *responseBuffer = (Message*)malloc(sizeof(Message));
-     if (responseBuffer == NULL) {
-        perror("Malloc für responseBuffer fehlgeschlagen");
-        free(httpReq);
-        free(input);
-        free(name);
-        free(content);
-        exit(EXIT_FAILURE);
-    }
+
     
 
 
@@ -62,6 +64,21 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if(firstTime==false){
+    char again[10] ;
+    printf("Noch eine Request schicken? Y | n\n");
+    fgets(again, MSG_MAX, stdin);
+
+    if(strcmp(again ,"n") == 0){
+        free(input); 
+        free(name); 
+        free(httpReq);
+        free(responseBuffer);
+        free(content); 
+        break;
+    }
+    }
+
     int fd = createSocket(argv[2], argv[1]);
     if (fd < 0) {
         perror("Fehler beim Erstellen des Sockets");
@@ -71,20 +88,6 @@ int main(int argc, char **argv) {
         free(responseBuffer);
         free(content);   
         return 1;
-    }
-    if(firstTime==false){
-        char *again;
-        printf("Noch eine Request schicken? Y | n\n");
-        fgets(again, MSG_MAX, stdin);
-        if(again[0]=='n'){
-            free(input); 
-            free(name); 
-            free(httpReq);
-            free(responseBuffer);
-            free(content); 
-            close(fd);
-            break;
-        }
     }
 
     printf("Was wollen Sie machen?\n");
@@ -111,7 +114,7 @@ int main(int argc, char **argv) {
         fgets(name, MSG_MAX, stdin);  
     }
     printf("moin");
-    if(responseBuffer->Cookie[0]!='\0'){
+    if(firstTime == false){
     httpReq = prepareRequestWithCookie(input, argv[1], name,responseBuffer->Cookie);
     printf("Noch da1?");
     if (httpReq == NULL) {

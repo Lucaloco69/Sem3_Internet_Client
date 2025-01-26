@@ -47,7 +47,7 @@ char * prepareRequest(char *input,char *hostName,char* userName){
         }
 
         if(strncmp(input+5,"/myname",7)==0 && hostName[0]!='\0'){ //POST-Request
-        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\nusername:%s",strlen(userName),(char*)hostName,(char*)userName);
+        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\n\r\nusername=%s",strlen(userName),(char*)hostName,(char*)userName);
             printf("Hier funzt noch alles");
             printf("%s",msg);
             printf("Hallo?");
@@ -119,7 +119,7 @@ int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
         file = fopen("requestedData.txt", "w");
         ssize_t outcome=fwrite(body, sizeof(char), responseBuffer->contentLength, file);
       
-    if (outcome != strlen(body)) {
+    if (outcome != responseBuffer->contentLength) {
         perror("Fehler beim Schreiben in die Datei");
         fclose(file);
         return 1;
@@ -133,7 +133,7 @@ int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
          file = fopen("requestedData.pdf", "w");
          ssize_t outcome=fwrite(body, sizeof(char), responseBuffer->contentLength, file);
       
-    if (outcome != strlen(body)) {
+    if (outcome != responseBuffer->contentLength) {
         perror("Fehler beim Schreiben in die Datei");
         fclose(file);
         return 1;
@@ -148,9 +148,9 @@ int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
         FILE *file2= fopen("requestetData.jpg","w");
         file = fopen("requestedData.txt", "w");
         ssize_t outcome=fwrite(text, sizeof(char),strlen(text), file);
-        ssize_t outcome=fwrite(image, sizeof(char),strlen(image), file2); 
+        ssize_t outcome2=fwrite(image, sizeof(char),strlen(image), file2); 
 
-    if (outcome != strlen(body)) {
+    if (outcome != strlen(text) || outcome2 != strlen(image)) {
         perror("Fehler beim Schreiben in die Datei");
         fclose(file);
         return 1;
@@ -166,7 +166,6 @@ int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
         printf("Fehler beim Öffnen der Datei");
         return 1;
     }
-    fclose(file);
     return 0;
 
 }
@@ -182,33 +181,35 @@ char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* 
      }
 
         if(strncmp(input+4,"/myname",7)==0){ 
-            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCooke: %s\r\n\r\n",(char*)hostName,(char*)cookie);
+            snprintf(msg,MSG_MAX,"GET /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
         }
 
         if(strncmp(input+4,"/mixed",6)==0){
-            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
+            snprintf(msg,MSG_MAX,"GET /mixed HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
         }
 
         if(strncmp(input+4,"/pdf",4)==0){
-            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
+            snprintf(msg,MSG_MAX,"GET /pdf HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+4,"/website",8)==0){
-            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\n",(char*)hostName,(char*)cookie);
+            snprintf(msg,MSG_MAX,"GET /website HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\n",(char*)hostName,(char*)cookie);
             printf("%s",msg);
             return msg;
 
         }
 
         if(strncmp(input+5,"/myname",7)==0 && hostName[0]!='\0'){ //POST-Request
-        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: %s\r\n\r\nusername:%s",strlen(userName),hostName,userName,(char*)cookie);
+
+        printf("\n DER COOKIE HAT DEN WERT: %s", cookie);
+        snprintf(msg,MSG_MAX,"POST /myname HTTP/1.1\r\nHost: LAyerServer\r\nContent-Length: %ld\r\nContent-Type: application/json\r\nReferer: http://%s.com\r\nConnection: close\r\nCookie: Session=%s\r\n\r\nusername=%s",strlen(userName) + 9,hostName,(char *)cookie, (char *)userName);
             printf("Hier funzt noch alles");
             printf("%s",msg);
             printf("Hallo?");
@@ -272,12 +273,17 @@ int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
 
         else if(strcmp(key, "Set-Cookie") == 0)
         {
+            printf("COOKIE GEFUNDEN");
             char *val = strtok(value, "=");
 
             val = strtok(NULL, ";");
 
+
+            printf("WERT VON COOKIE: %s\n ", val);
+
             strncpy(buffer->Cookie,val,strlen(val));//Da val ein char pointer und Cookie ein char []
-            buffer->Cookie[sizeof(buffer->Cookie) - 1] = '\0';
+            buffer->Cookie[strlen(val)] = '\0';
+            printf("\n WERT %s \n  ", buffer->Cookie);
         }  
     }
 
