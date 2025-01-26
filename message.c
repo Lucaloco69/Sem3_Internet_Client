@@ -112,11 +112,8 @@ char *divideBodyFromHeader(char *str)
     return NULL;
 
 } 
-
-int writeIntoFile(char *body, Message *responseBuffer){
+int writeIntoFile(char *body, Message *responseBuffer,char *image, char* text){
     FILE *file;
-    file = NULL;
-    printf("hi");
     printf("%s",responseBuffer->contentType);
     if(strcmp(responseBuffer->contentType," text/html")==0 || strcmp(responseBuffer->contentType," text/plain")==0){
         file = fopen("requestedData.txt", "w");
@@ -148,7 +145,19 @@ int writeIntoFile(char *body, Message *responseBuffer){
     }
 
     if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=--------------------------104850386028541947603269")==0){
-        
+        FILE *file2= fopen("requestetData.jpg","w");
+        file = fopen("requestedData.txt", "w");
+        ssize_t outcome=fwrite(text, sizeof(char),strlen(text), file);
+        ssize_t outcome=fwrite(image, sizeof(char),strlen(image), file2); 
+
+    if (outcome != strlen(body)) {
+        perror("Fehler beim Schreiben in die Datei");
+        fclose(file);
+        return 1;
+    }
+
+    printf("\nEine txt-und jpg-Datei mit den angeforderten Daten wurde unter dem Pfad: /Sem3_Internet_Client erstellt\n");
+    fclose(file);
     }
 
 
@@ -161,6 +170,9 @@ int writeIntoFile(char *body, Message *responseBuffer){
     return 0;
 
 }
+
+
+
 
 char * prepareRequestWithCookie(char *input,char *hostName,char* userName,char* cookie){
      char *msg = (char *)malloc(MSG_MAX * sizeof(char));
@@ -270,6 +282,20 @@ int getHeadersFromRequest(Message *buffer, char *strBuf, int maxHeaders)
     }
 
 } 
+
+int splitIntoImgAndText(char* mixed,char *img, char* txt){
+    char *splitter=" -------------------------104850386028541947603269";
+
+    char *store=strstr(mixed+strlen(splitter),splitter);
+    *store='\0';
+    txt=mixed-strlen(splitter);
+    store=store +1;
+    store=strstr(store+strlen(splitter),splitter);
+    *store='\0';
+    img=txt+strlen(splitter);
+    printf("In splitIntoImgAndText text: %s \n und img: %s",txt,img);
+    
+}
 
 
 

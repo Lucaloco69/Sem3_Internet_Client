@@ -161,12 +161,14 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
 
     }
-    if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=--------------------------104850386028541947603269")==0){
-
+    char* image;
+    char* text;
+    if(strcmp(responseBuffer->contentType," multipart/form-data; boundary=-------------------------104850386028541947603269")==0){
+        splitIntoImgAndText(rcvResult,image,text);
     }
     
     // content = divideBodyFromHeader(content);
-    if(writeIntoFile(rcvResult, responseBuffer)!=0){
+    if(writeIntoFile(rcvResult, responseBuffer,image,text)!=0){
         free(input); 
         free(name); 
         free(httpReq);
